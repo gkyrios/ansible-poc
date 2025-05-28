@@ -1,0 +1,56 @@
+---
+- name: Change SSH port and generate report
+  hosts: all
+  gather_facts: true
+  become: yes
+  become_method: su
+  vars:
+    csv_path: /tmp
+    csv_filename: report.csv
+    headers: Hostname,SSH Port Before,SSH Port After
+
+  tasks:
+    - name: Update SSH config
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#?Port '
+        line: 'Port {{ new_ssh_port }}'
+
+#    - name: Allow new SSH port in firewall
+#      firewalld:
+#        port: "{{ new_ssh_port }}/tcp"
+#        permanent: yes
+#        state: enabled
+#        notify: Reload Firewall
+#      when: "'firewalld' in ansible_facts.services"
+
+    - name: Update SELinux to allow new SSH port
+      command: "semanage port -a -t ssh_port_t -p tcp {{ new_ssh_port }}"
+      ignore_errors: yes  # In case SELinux isn't enforcing
+
+    - name: restart sshd
+      service:
+        name: sshd
+        state: restarted
+
+    - name: change ssh port
+      set_fact:
+        ansible_port: "{{ new_ssh_port }}"
+
+    - name: test connection
+      ping:
+
+    - name: generate csv report file
+      lineinfile:
+        dest: "{{ csv_path }}/{{ csv_filename }}"
+        line: "{{ headers }}"
+        create: true
+        state: present
+      run_once: true
+
+    - name: insert data to report
+      lineinfile:
+        dest: "{{ csv_path }}/{{ csv_filename }}"
+        line: "{{ inventory_hostname }},22,{{ new_ssh_port }}"
+        create: true
+        state: present
