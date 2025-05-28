@@ -1,0 +1,37 @@
+---
+- name: change nginx cert
+  hosts: all
+  gather_facts: true
+  vars:
+    cert_path: /etc/nginx/ssl/
+    new_cert_path: /tmp/new-cert/
+
+  tasks:
+  - name: check connection to remote host
+    ping:
+
+  - name: Create backup directory
+    file:
+      path: "/tmp/backup/nginx/{{ ansible_date_time.date }}"
+      state: directory
+    register: backup_dir
+
+  - name: backup existing ssl
+    copy:
+      src: "{{ cert_path }}"
+      dest: "{{ backup_dir.path }}"
+      remote_src: yes
+    become: yes
+
+  - name: replace new ssl cert
+    copy:
+      src: "{{ new_cert_path }}"
+      dest: "{{ cert_path }}"
+      remote_src: yes
+    become: yes
+
+  - name: restart nginx service
+    service:
+      name: nginx
+      state: reloaded
+    become: yes
