@@ -1,0 +1,6 @@
+apic_host: "{{ inventory_hostname }}"
+apic_port: 443
+remote_host: "10.254.6.173"
+remote_user: "backupapic"
+remote_password: "BackupP@sww0rd123"
+remote_path: "/backups/apic/"

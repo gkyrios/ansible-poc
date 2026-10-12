@@ -1,0 +1,33 @@
+- name: Verify TCP port reachability to Cisco APIC
+  ansible.builtin.wait_for:
+    host: "{{ apic_host }}"
+    port: "{{ apic_port }}"
+    state: started
+    timeout: 5
+  delegate_to: localhost
+
+- name: Verify APIC API credentials and responsiveness
+  cisco.aci.aci_rest:
+    hostname: "{{ apic_host }}"
+    username: "{{ ansible_user }}"
+    password: "{{ ansible_password }}"
+    validate_certs: false
+    method: get
+    path: "/api/node/mo/sys.json"
+  register: apic_api_check
+  delegate_to: localhost
+
+- name: Verify TCP port reachability to Remote Backup Host
+  ansible.builtin.wait_for:
+    host: "{{ remote_host }}"
+    port: "{{ remote_port }}"
+    state: started
+    timeout: 5
+  delegate_to: localhost
+
+- name: Display pre-check status
+  ansible.builtin.debug:
+    msg: >-
+      Pre-flight checks passed successfully!
+      APIC ({{ apic_host }}:{{ apic_port }}) is responsive and authenticated.
+      Remote Backup Host ({{ remote_host }}:{{ remote_port }}) is reachable. 

@@ -1,0 +1,11 @@
+- name: Create export policy and trigger export run
+  cisco.aci.aci_config_export_policy:
+    hostname: "{{ inventory_hostname }}"
+    username: "{{ ansible_user }}"
+    password: "{{ ansible_password }}"
+    validate_certs: false
+    name: "Daily_APIC_Export"
+    file_remote_path: "Backup_Server_SCP"
+    format: "json"
+    admin_st: "triggered"
+    state: present

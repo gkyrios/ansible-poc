@@ -1,0 +1,19 @@
+- name: Cisco APIC Task
+  hosts: all
+  connection: local
+  gather_facts: false
+  vars_files:
+    - "./vars/env_vars.yaml"
+
+  tasks:
+    - name: "--=Check Before Changes=--"
+      ansible.builtin.include_tasks:
+        file: ./subtask/initial_check.yaml
+
+    - name: "--=Define Remote Backup Location=--"
+      ansible.builtin.include_tasks:
+        file: ./subtask/remote_loc_check.yaml
+        
+    - name: "--=Start Backup Process=--"
+      ansible.builtin.include_tasks:
+        file: ./subtask/export_backup.yaml

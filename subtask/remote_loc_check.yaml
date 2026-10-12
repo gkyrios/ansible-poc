@@ -1,0 +1,13 @@
+- name: Define remote export destination path
+  cisco.aci.aci_file_remote_path:
+    hostname: "{{ inventory_hostname }}"
+    username: "{{ ansible_user }}"
+    password: "{{ ansible_password }}"
+    validate_certs: false
+    name: "Backup_Server_SCP"
+    host: "{{ remote_host }}"
+    protocol: "scp"
+    remote_path: "{{ remote_path }}"
+    remote_user: "{{ remote_user }}"
+    remote_password: "{{ remote_password }}"
+    state: present
